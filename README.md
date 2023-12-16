@@ -8,6 +8,7 @@ App build with svelte and skeleton.
 
 ### TODO
 
+- [ ] Refactor rules and precedence
 - [ ] Accept multiple digit numbers
 - [ ] Fix crashes when parsing inputs that are non-sensical
 - [ ] Stepper?
