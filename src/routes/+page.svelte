@@ -3,7 +3,7 @@
 	import cytoscape from 'cytoscape';
 	import dagre from 'cytoscape-dagre';
 	import stringToPostfix from '../lib/stringToPostfix';
-	import type { Core, ElementsDefinition, NodeDefinition, EdgeDefinition } from 'cytoscape';
+	import type { Core, NodeDefinition, EdgeDefinition } from 'cytoscape';
 
 	let cy: Core;
 	let cyContainer: HTMLElement;
@@ -84,7 +84,7 @@
 </script>
 
 <div class="container h-full mx-auto flex justify-center items-center">
-	<div class="space-y-5">
+	<div class="space-y-5 min-w-[30vw] p-6">
 		<h1 class="h1">Aritree</h1>
 		<p class="text-gray-500">Visualise your arithmetic expressions.</p>
 		<div>
@@ -104,6 +104,12 @@
 <style>
 	.cy-container {
 		width: 100%;
-		height: 400px; /* Set your desired height */
+		height: 60vh;
+		max-height: 1000px;
+	}
+	@media (max-height: 700px) {
+		.cy-container {
+			height: 50vh;
+		}
 	}
 </style>

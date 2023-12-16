@@ -4,6 +4,9 @@ Arithmetic expressions visualized in a binary tree representation.
 
 App build with svelte and skeleton.
 
+![](./.github/aritree_page.png)
+
+
 ## Design
 
 In a nutshell,
