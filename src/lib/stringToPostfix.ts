@@ -1,4 +1,4 @@
-export function convertToPostfix(infix: string): string {
+export default function convertToPostfix(infix: string): string {
   const noSpaceInfix = infix.replace(/\s+/g, '');
   const stack: string[] = [];
   const operators = "-+/*^";
