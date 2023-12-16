@@ -6,6 +6,12 @@ App build with svelte and skeleton.
 
 ![](./.github/aritree_page.png)
 
+### TODO
+
+- [ ] Accept multiple digit numbers
+- [ ] Fix crashes when parsing inputs that are non-sensical
+- [ ] Stepper?
+
 
 ## Design
 
