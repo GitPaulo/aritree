@@ -1,38 +1,81 @@
-export default function convertToPostfix(infix: string): string {
+export enum operators {
+  SUBTRACTION = '-',
+  ADDITION = '+',
+  DIVISION = '/',
+  MULTIPLICATION = '*',
+  POWER = '^',
+}
+
+export type token = (operators | '(' | ')');
+
+export const precedence: { [key in operators]: number } = {
+  [operators.POWER]: 4,
+  [operators.MULTIPLICATION]: 3,
+  [operators.DIVISION]: 3,
+  [operators.ADDITION]: 2,
+  [operators.SUBTRACTION]: 2
+};
+
+export const associativity: { [key in operators]: 'Left' | 'Right' } = {
+  [operators.POWER]: "Right",
+  [operators.MULTIPLICATION]: "Left",
+  [operators.DIVISION]: "Left",
+  [operators.ADDITION]: "Left",
+  [operators.SUBTRACTION]: "Left"
+};
+
+export const isOperator = (token: string): boolean => {
+  return Object.values(operators).includes(token as operators);
+};
+
+export function stringToPostfix(infix: string): string {
   const noSpaceInfix = infix.replace(/\s+/g, '');
-  const stack: string[] = [];
-  const operators = "-+/*^";
-  const precedence: { [key: string]: number } = { "^": 4, "*": 3, "/": 3, "+": 2, "-": 2 };
-  const associativity: { [key: string]: string } = { "^": "Right", "*": "Left", "/": "Left", "+": "Left", "-": "Left" };
-
+  const stack: token[] = [];
   let postfix = "";
-  let currentChar: string;
-  let topOperator: string | undefined;
 
-  for (let i = 0; i < noSpaceInfix.length; i++) {
-    currentChar = noSpaceInfix[i];
-    if (currentChar >= "0" && currentChar <= "9") {
-      postfix += currentChar + " ";
-    } else if (operators.includes(currentChar)) {
-      while (stack.length > 0 && operators.includes(topOperator = stack[stack.length - 1]) &&
-        ((associativity[currentChar] === "Left" && precedence[currentChar] <= precedence[topOperator!]) ||
-          (associativity[currentChar] === "Right" && precedence[currentChar] < precedence[topOperator!]))) {
-        postfix += stack.pop()! + " ";
+  let i = 0;
+  while (i < noSpaceInfix.length) {
+    const currentChar = noSpaceInfix[i];
+
+    // If the character is a number or a decimal point, keep reading until you hit a non-number/decimal.
+    if (/\d|\./.test(currentChar)) {
+      let number = currentChar;
+      while (i + 1 < noSpaceInfix.length && /\d|\./.test(noSpaceInfix[i + 1])) {
+        number += noSpaceInfix[++i];
       }
-      stack.push(currentChar);
+      postfix += number + " ";
+    } else if (isOperator(currentChar)) {
+      // Process operators
+      while (
+        stack.length > 0 &&
+        isOperator(stack[stack.length - 1]) &&
+        (
+          (associativity[currentChar as operators] === "Left" && precedence[currentChar as operators] <= precedence[stack[stack.length - 1] as operators]) ||
+          (associativity[currentChar as operators] === "Right" && precedence[currentChar as operators] < precedence[stack[stack.length - 1] as operators])
+        )
+      ) {
+        postfix += stack.pop() + " ";
+      }
+      stack.push(currentChar as operators);
     } else if (currentChar === "(") {
-      stack.push(currentChar);
+      stack.push('(');
     } else if (currentChar === ")") {
-      while (stack[stack.length - 1] !== "(") {
-        postfix += stack.pop()! + " ";
+      // Process right parentheses
+      while (stack.length > 0 && stack[stack.length - 1] !== "(") {
+        postfix += stack.pop() + " ";
       }
-      stack.pop();
+      stack.pop(); // Pop the left parenthesis
+    }
+    i++;
+  }
+
+  // Pop any remaining operators from the stack
+  while (stack.length > 0) {
+    const top = stack.pop();
+    if (top !== '(') {
+      postfix += top + " ";
     }
   }
 
-  while (stack.length > 0) {
-    postfix += stack.pop()! + " ";
-  }
-
   return postfix.trim();
-} 
+}
