@@ -10,6 +10,7 @@ App build with svelte and skeleton.
 
 - [ ] Allow changing rules in table view
 - [ ] More operators?
+- [ ] Stepper?
 
 ## Design
 
