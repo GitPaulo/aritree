@@ -108,7 +108,7 @@
 
 <!-- Drawer -->
 <Drawer>
-	<h2 class="p-4">Rules</h2>
+	<h3 class="h3 m-4">Rules</h3>
 	<div class="table-container">
 		<table class="table table-hover">
 			<thead>
@@ -154,7 +154,7 @@
 					</div>
 				</aside>
 			{/if}
-			<h3>Postfix Expression</h3>
+			<h2>Postfix Expression</h2>
 			<span>{postfixExpression}</span>
 			<button type="button" class="btn variant-filled" on:click={openRulesDrawer}>Rule Set</button>
 		</div>
