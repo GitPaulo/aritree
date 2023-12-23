@@ -2,7 +2,13 @@
 	import { onMount } from 'svelte';
 	import cytoscape from 'cytoscape';
 	import dagre from 'cytoscape-dagre';
-	import { stringToPostfix, operators, precedence, associativity } from '../lib/stringToPostfix';
+	import {
+		stringToPostfix,
+		operators,
+		precedence,
+		associativity,
+		isOperator
+	} from '../lib/stringToPostfix';
 	import type { Core, NodeDefinition, EdgeDefinition } from 'cytoscape';
 	import { initializeStores, getDrawerStore, Drawer } from '@skeletonlabs/skeleton';
 
@@ -86,29 +92,17 @@
 		return { nodes, edges };
 	}
 
-	function isOperator(token: string): boolean {
-		return ['+', '-', '*', '/', '^'].includes(token);
-	}
-
 	function onExpressionChange(event: any) {
 		const inputStr = event.target.value;
-		// Generate a string that contains all operators and parentheses
-		const operatorString = operatorList.join('') + '()';
-		const invalidCharactersRegex = new RegExp(
-			`[^0-9${operatorString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`
-		);
-
-		if (invalidCharactersRegex.test(inputStr)) {
+		try {
+			postfixExpression = stringToPostfix(inputStr);
+		} catch (error: any) {
 			expressionHasError = true;
-			expressionErrorMessage = 'Invalid characters';
+			expressionErrorMessage = error.message;
 			return;
-		} else {
-			expressionHasError = false;
-			expressionErrorMessage = '';
 		}
-
-		postfixExpression = stringToPostfix(inputStr);
 		createCytoscape(createGraphDataFromPostfix(postfixExpression));
+		expressionHasError = false;
 	}
 </script>
 
@@ -125,7 +119,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each operatorList as operator, i}
+				{#each operatorList as operator}
 					<tr>
 						<td>{operator}</td>
 						<td>{precedence[operator]}</td>
@@ -140,9 +134,14 @@
 <!--- Page -->
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-5 min-w-[30vw] p-6">
-		<h1 class="h1">Aritree</h1>
+		<div class="flex items-center">
+			<span class="h-20 w-20 mr-3 badge-icon variant-filled"
+				><img src="favicon.png" alt="aritree" /></span
+			>
+			<h1 class="h1">Aritree</h1>
+		</div>
 		<p class="text-gray-500">Visualise your arithmetic expressions.</p>
-		<div class="container">
+		<div class="container space-y-3">
 			<label class="label">
 				<span>Expression</span>
 				<input class="input" type="text" placeholder="1+2*3" on:input={onExpressionChange} />
@@ -160,7 +159,6 @@
 			<button type="button" class="btn variant-filled" on:click={openRulesDrawer}>Rule Set</button>
 		</div>
 		<!--- Cytoscape container --->
-		<h2>Canvas</h2>
 		<div bind:this={cyContainer} class="cy-container"></div>
 	</div>
 </div>
