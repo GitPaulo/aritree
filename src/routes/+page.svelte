@@ -5,10 +5,11 @@
 	import {
 		stringToPostfix,
 		operators,
-		precedence,
-		associativity,
-		isOperator
+		isOperator,
+		associativeDirection
 	} from '../lib/stringToPostfix';
+	import { operatorConfig } from '../lib/operatorStore';
+
 	import type { Core, NodeDefinition, EdgeDefinition } from 'cytoscape';
 	import { initializeStores, getDrawerStore, Drawer } from '@skeletonlabs/skeleton';
 
@@ -26,6 +27,20 @@
 	onMount(() => {
 		cytoscape.use(dagre);
 	});
+
+	function updatePrecedence(operator: operators, newPrecedence: number) {
+		operatorConfig.update((config) => {
+			config[operator].precedence = newPrecedence;
+			return config;
+		});
+	}
+
+	function updateAssociativity(operator: operators, newAssociativity: associativeDirection) {
+		operatorConfig.update((config) => {
+			config[operator].associativity = newAssociativity;
+			return config;
+		});
+	}
 
 	function openRulesDrawer() {
 		drawerStore.open({
@@ -156,17 +171,19 @@
 	function onExpressionChange(event: any) {
 		const inputStr = event.target.value;
 
-		try {
-			validateExpression(inputStr);
-			postfixExpression = stringToPostfix(inputStr);
-			expressionHasError = false;
-			createCytoscape(createGraphDataFromPostfix(postfixExpression));
-		} catch (error: any) {
-			postfixExpression = '';
-			expressionHasError = true;
-			expressionErrorMessage = error.message;
-			if (cy) cy.elements().remove();
-		}
+		operatorConfig.subscribe((config) => {
+			try {
+				validateExpression(inputStr);
+				postfixExpression = stringToPostfix(inputStr, config);
+				expressionHasError = false;
+				createCytoscape(createGraphDataFromPostfix(postfixExpression));
+			} catch (error: any) {
+				postfixExpression = '';
+				expressionHasError = true;
+				expressionErrorMessage = error.message;
+				if (cy) cy.elements().remove();
+			}
+		})();
 	}
 </script>
 
@@ -186,8 +203,26 @@
 				{#each operatorList as operator}
 					<tr>
 						<td>{operator}</td>
-						<td>{precedence[operator]}</td>
-						<td>{associativity[operator]}</td>
+						<td>
+							<input
+								class="input input-sm"
+								type="number"
+								bind:value={$operatorConfig[operator].precedence}
+								min="1"
+								max="10"
+								on:change={(e) => updatePrecedence(operator, e.target.value)}
+							/>
+						</td>
+						<td>
+							<select
+								class="input input-sm"
+								bind:value={$operatorConfig[operator].associativity}
+								on:change={(e) => updateAssociativity(operator, e.target.value)}
+							>
+								<option value={associativeDirection.LEFT}>Left</option>
+								<option value={associativeDirection.RIGHT}>Right</option>
+							</select>
+						</td>
 					</tr>
 				{/each}
 			</tbody>

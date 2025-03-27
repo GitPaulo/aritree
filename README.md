@@ -4,12 +4,6 @@ Arithmetic expressions visualized in a binary tree representation.
 
 ![image](https://github.com/GitPaulo/aritree/assets/18451329/d7779ffb-1e35-478c-b0e6-b844176e0d46)
 
-### TODO
-
-- [ ] Allow changing rules in table view
-- [ ] More operators?
-- [ ] Stepper?
-
 ## Design
 
 In a nutshell,
