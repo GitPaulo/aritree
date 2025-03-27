@@ -41,15 +41,27 @@
 				name: 'dagre'
 			},
 			style: [
-				// the stylesheet for the graph
 				{
 					selector: 'node',
 					style: {
-						'background-color': 'grey',
-						color: '#ff0000',
+						'background-color': '#ffffff', // Nodes white
+						color: '#000000', // Label color black
 						'text-valign': 'center',
 						'text-halign': 'center',
-						label: 'data(label)'
+						'text-wrap': 'ellipsis', // abbreviate long labels
+						'text-max-width': '40px',
+						label: 'data(label)',
+						'border-width': 1,
+						'border-color': '#888888'
+					}
+				},
+				{
+					selector: 'edge',
+					style: {
+						width: 2,
+						'line-color': '#ccc',
+						'target-arrow-color': '#ccc',
+						'target-arrow-shape': 'triangle'
 					}
 				}
 			]
@@ -92,17 +104,69 @@
 		return { nodes, edges };
 	}
 
+	function validateExpression(input: string): void {
+		const cleaned = input.replace(/\s+/g, '');
+
+		if (!cleaned.length) {
+			throw new Error('Expression cannot be empty.');
+		}
+
+		// Invalid characters (only digits, operators, parentheses, decimal points allowed)
+		if (/[^0-9+\-*/().]/.test(cleaned)) {
+			throw new Error('Invalid expression: contains invalid characters.');
+		}
+
+		// Empty parentheses ()
+		if (/\(\)/.test(cleaned)) {
+			throw new Error('Invalid expression: empty parentheses detected.');
+		}
+
+		// Multiple decimal points in a single number (e.g., 1..2 or 3.4.5)
+		if (/\d*\.\d*\./.test(cleaned)) {
+			throw new Error('Invalid expression: invalid number format.');
+		}
+
+		// Operators immediately before or after parentheses (e.g., "(+", "+)")
+		if (/\([\+\*\/]/.test(cleaned) || /[\+\-\*\/]\)/.test(cleaned)) {
+			throw new Error('Invalid expression: misplaced operator near parentheses.');
+		}
+
+		// Digit immediately before "(" or after ")" (e.g., "2(3+4)" or "(3+4)2")
+		if (/\d\(/.test(cleaned) || /\)\d/.test(cleaned)) {
+			throw new Error('Invalid expression: missing operator near parentheses.');
+		}
+
+		// Operator at end
+		if (/[\+\-\*\/]$/.test(cleaned)) {
+			throw new Error('Invalid expression: cannot end with operator.');
+		}
+
+		// Invalid consecutive operators (excluding unary minus)
+		const invalidConsecutiveOperators = /([\+\*\/]{2,}|[\+\*\/]-|-[\+\*\/])/;
+		if (invalidConsecutiveOperators.test(cleaned)) {
+			throw new Error('Invalid expression: multiple consecutive operators.');
+		}
+
+		// Operator at start (allow unary minus at the start)
+		if (/^[\+\*\/]/.test(cleaned)) {
+			throw new Error('Invalid expression: cannot start with operator except unary minus.');
+		}
+	}
+
 	function onExpressionChange(event: any) {
 		const inputStr = event.target.value;
+
 		try {
+			validateExpression(inputStr);
 			postfixExpression = stringToPostfix(inputStr);
+			expressionHasError = false;
+			createCytoscape(createGraphDataFromPostfix(postfixExpression));
 		} catch (error: any) {
+			postfixExpression = '';
 			expressionHasError = true;
 			expressionErrorMessage = error.message;
-			return;
+			if (cy) cy.elements().remove();
 		}
-		createCytoscape(createGraphDataFromPostfix(postfixExpression));
-		expressionHasError = false;
 	}
 </script>
 

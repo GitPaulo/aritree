@@ -114,4 +114,3 @@ export function stringToPostfix(infix: string): string {
 
   return postfix.trim();
 }
-
