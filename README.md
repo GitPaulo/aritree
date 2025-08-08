@@ -1,26 +1,23 @@
 # `Aritree`
 
-Arithmetic expressions visualized in a binary tree representation.
+Arithmetic expressions as a binary tree representation.
 
-![image](https://github.com/GitPaulo/aritree/assets/18451329/d7779ffb-1e35-478c-b0e6-b844176e0d46)
+<img width="815" height="1107" alt="image" src="https://github.com/user-attachments/assets/d4b7b358-788d-43cd-85c4-ddc48d71e04a" />
 
 ## Design
 
-In a nutshell,
+Here's how it works,
 
 ![](./.github/aritree_design.png)
 
-## Developing
+#### Reference
+- http://faculty.nps.edu/kmsquire/cs3901/section1/projects/p2/arithmetic.pdf
+- https://brilliant.org/wiki/shunting-yard-algorithm/
 
-Once you've created a project and installed dependencies with `npm install`, start a development server:
+## Dev
+
+All you need is npm,
 
 ```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
-
-## REF
-- http://faculty.nps.edu/kmsquire/cs3901/section1/projects/p2/arithmetic.pdf
-- https://brilliant.org/wiki/shunting-yard-algorithm/
